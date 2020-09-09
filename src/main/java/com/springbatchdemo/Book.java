@@ -80,7 +80,7 @@ public class Book {
 
 	@Override
 	public String toString() {
-		return "BookDto [title=" + title + ", author=" + author + ", isbn=" + isbn + ", publisher=" + publisher
+		return "Book [title=" + title + ", author=" + author + ", isbn=" + isbn + ", publisher=" + publisher
 				+ ", year=" + year + "]";
 	}
 
