@@ -4,6 +4,14 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: admin
+  
+  jpa:
+    properties:
+      hibernate: 
+        dialect: org.hibernate.dialect.PostgreSQL95Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
 
   batch:
     initialize-schema: always
