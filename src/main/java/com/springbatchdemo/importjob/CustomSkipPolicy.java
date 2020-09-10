@@ -1,4 +1,4 @@
-package com.springbatchdemo;
+package com.springbatchdemo.importjob;
 
 import org.springframework.batch.core.step.skip.SkipLimitExceededException;
 import org.springframework.batch.core.step.skip.SkipPolicy;

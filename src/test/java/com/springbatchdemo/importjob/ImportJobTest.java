@@ -1,4 +1,4 @@
-package com.springbatchdemo;
+package com.springbatchdemo.importjob;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -15,9 +15,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.springbatchdemo.BatchTestConfiguration;
+import com.springbatchdemo.common.FullReportListener;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ContextConfiguration(classes = { BatchTestConfiguration.class, ImportJobConfig.class, FullReportListener.class })
+@ContextConfiguration(classes = { BatchTestConfiguration.class, ImportJobConfig.class, FullReportListener.class,
+		DeleteTasklet.class })
 public class ImportJobTest {
 
 	@Autowired

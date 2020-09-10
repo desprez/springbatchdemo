@@ -1,4 +1,4 @@
-package com.springbatchdemo;
+package com.springbatchdemo.common;
 
 import java.util.Date;
 import java.util.Iterator;

@@ -1,4 +1,4 @@
-package com.springbatchdemo;
+package com.springbatchdemo.importjob;
 
 import javax.sql.DataSource;
 
@@ -8,6 +8,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
@@ -17,9 +18,13 @@ import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+
+import com.springbatchdemo.common.FullReportListener;
+import com.springbatchdemo.domain.BookDto;
 
 @Configuration
 public class ImportJobConfig {
@@ -38,12 +43,28 @@ public class ImportJobConfig {
 	@Autowired
 	private FullReportListener listener;
 
+	@Autowired
+	private DeleteTasklet deleteTasklet;
+
 	@Bean
 	public Job importJob() {
 		return jobBuilderFactory.get("import-job") //
 				.incrementer(new RunIdIncrementer()) //
-				.start(importStep()) //
-				.listener(listener)
+				.start(deleteStep()) //
+				.next(importStep()) //
+				.listener(listener) //
+				.build();
+	}
+
+	/**
+	 * Delete Step for deleting all Book records.
+	 *
+	 * @return the Step
+	 */
+	@Bean
+	public Step deleteStep() {
+		return stepBuilderFactory.get("delete-step") //
+				.tasklet(deleteTasklet) //
 				.build();
 	}
 
@@ -51,7 +72,7 @@ public class ImportJobConfig {
 	public Step importStep() {
 		return stepBuilderFactory.get("import-step") //
 				.<BookDto, BookDto>chunk(5) //
-				.reader(reader()) //
+				.reader(reader(null)) //
 				.processor(processor()) //
 				.writer(writer()) //
 				.faultTolerant() //
@@ -60,6 +81,11 @@ public class ImportJobConfig {
 				.build();
 	}
 
+	/**
+	 * Fake processor that only logs
+	 *
+	 * @return an item processor
+	 */
 	private ItemProcessor<BookDto, BookDto> processor() {
 		return new ItemProcessor<BookDto, BookDto>() {
 
@@ -70,8 +96,9 @@ public class ImportJobConfig {
 		};
 	}
 
+	@StepScope // Mandatory for using jobParameters
 	@Bean
-	public FlatFileItemReader<BookDto> reader() {
+	public FlatFileItemReader<BookDto> reader(@Value("#{jobParameters['input-file']}") final String inputFile) {
 		final FlatFileItemReader<BookDto> reader = new FlatFileItemReader<BookDto>();
 		final DefaultLineMapper<BookDto> lineMapper = new DefaultLineMapper<BookDto>();
 
@@ -84,7 +111,7 @@ public class ImportJobConfig {
 		fieldSetMapper.setTargetType(BookDto.class);
 		lineMapper.setFieldSetMapper(fieldSetMapper);
 
-		reader.setResource(new FileSystemResource("src/main/resources/sample-data.csv"));
+		reader.setResource(new FileSystemResource(inputFile));
 		reader.setLineMapper(lineMapper);
 		reader.setLinesToSkip(1);
 		return reader;

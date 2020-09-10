@@ -6,8 +6,10 @@ spring:
     password: admin
 
   batch:
+    enabled: true  
     initialize-schema: always
-    
+
 logging:
   level:
-    org.springframework.batch: trace
+    com.springbatchdemo: info
+    org.springframework.batch: info

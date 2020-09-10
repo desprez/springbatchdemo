@@ -1,4 +1,4 @@
-package com.springbatchdemo;
+package com.springbatchdemo.domain;
 
 public class BookDto {
 
