@@ -54,6 +54,9 @@ public class ImportJobConfig {
 				.reader(reader()) //
 				.processor(processor()) //
 				.writer(writer()) //
+				.faultTolerant() //
+				.skipPolicy(new CustomSkipPolicy()) //
+				.skipLimit(2) //
 				.build();
 	}
 
