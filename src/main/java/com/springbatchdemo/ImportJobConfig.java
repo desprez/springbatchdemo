@@ -35,11 +35,15 @@ public class ImportJobConfig {
 	@Autowired
 	private DataSource dataSource;
 
+	@Autowired
+	private FullReportListener listener;
+
 	@Bean
 	public Job importJob() {
 		return jobBuilderFactory.get("import-job") //
 				.incrementer(new RunIdIncrementer()) //
 				.start(importStep()) //
+				.listener(listener)
 				.build();
 	}
 
@@ -48,7 +52,8 @@ public class ImportJobConfig {
 		return stepBuilderFactory.get("import-step") //
 				.<BookDto, BookDto>chunk(5) //
 				.reader(reader()) //
-				.processor(processor()).writer(writer()) //
+				.processor(processor()) //
+				.writer(writer()) //
 				.build();
 	}
 
